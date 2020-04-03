@@ -1,6 +1,10 @@
-const router = require('express').Router();
 const csvToJson = require('csvtojson');
 const moment = require('moment');
+const router = require('express').Router();
+let cases = require('../models/case.model');
+
+
+require('dotenv').config();
 
 const FILE_PATH = process.env.FILE_PATH;
 
@@ -17,6 +21,7 @@ router.route('/:country').get(async (req, res) => {
 router.route('/mb/:country').get(async (req, res) => {
     try {
         const result = await timeSeriesToJSON(req.params.country);
+        console.log(result);
         let features = [];
         result.forEach((elem, index) => {
             let start = moment().subtract(1, 'days');
@@ -31,7 +36,6 @@ router.route('/mb/:country').get(async (req, res) => {
                 }
                 start.add(1, 'days');
             }
-            console.log(numCases);
             features.push({
                 "type": "Feature", "properties": { "id": id + start.valueOf(), "cases": numCases },
                 "geometry": { "type": "Point", "coordinates": [Number.parseFloat(elem['Long']), Number.parseFloat(elem['Lat'])] }
@@ -49,7 +53,7 @@ router.route('/mb/:country').get(async (req, res) => {
 });
 
 async function timeSeriesToJSON(country) {
-
+    console.log(FILE_PATH);
     const jsonObj = await csvToJson().fromFile(FILE_PATH);
     return jsonObj.filter((elem) => {
         let country_region = elem['Country_Region'] || elem['Country/Region'];
@@ -57,6 +61,8 @@ async function timeSeriesToJSON(country) {
     });
 
 }
+
+
 
 function convertCsvToJson() {
     let cases = [];
@@ -81,4 +87,4 @@ function convertCsvToJson() {
 
 }
 
-export default router;
+module.exports = router;
