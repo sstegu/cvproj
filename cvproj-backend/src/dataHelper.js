@@ -21,7 +21,7 @@ module.exports.insertCases = async function (path) {
                 let lat = json['Lat'];
                 let lng = json['Long'];
                 let cases = this.createCaseArray(json, moment('1/1/20'), moment());
-
+                
                 if (country.length > 0) {
                     let newCase = new Case({
                         country,
@@ -50,6 +50,7 @@ module.exports.createCaseArray = function (caseData, start, end) {
     while (start.isSameOrBefore(end)) {
 
         let caseDte = start.format('M/D/YY');
+
         if (caseData[caseDte] !== undefined) {
             let numCases = caseData[caseDte];
             cases.push({ 'date': caseDte, 'number': numCases });

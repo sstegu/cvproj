@@ -10,8 +10,10 @@ const FILE_PATH = process.env.FILE_PATH;
 
 router.route('/:country').get(async (req, res) => {
     try {
-        const result = await timeSeriesToJSON(req.params.country);
-        return res.json(result);
+        const result = await cases.find({ country: req.params.country }, (err, result) => {
+            return res.json(result);
+        });
+
     }
     catch (err) {
         return res.status(400).json('error: ' + err);
@@ -20,26 +22,33 @@ router.route('/:country').get(async (req, res) => {
 
 router.route('/mb/:country').get(async (req, res) => {
     try {
-        const result = await timeSeriesToJSON(req.params.country);
-        console.log(result);
         let features = [];
-        result.forEach((elem, index) => {
-            let start = moment().subtract(1, 'days');
-            let end = moment();
-            let numCases = 0;
-            let id = elem['Country/Region'] + elem['Province/State'];
-            while (start.isSameOrBefore(end)) {
-                let caseDte = start.format('M/D/YY');
-                let cases = elem[caseDte];
-                if (cases !== undefined && cases > 0) {
-                    numCases = numCases + Number.parseInt(cases);
+
+        await cases.find({ country: req.params.country }, (err, result) => {
+            console.log(result);
+            result.forEach((elem, index) => {
+                let start = moment().subtract(1, 'days');
+                let end = moment();
+                let numCases = 0;
+                let id = elem['country'] + elem['region'];
+                let casesByDte = elem['cases'];
+
+                while (start.isSameOrBefore(end)) {
+                    let caseDte = start.format('M/D/YY');
+
+                    let cases = casesByDte.find((val) => { if (val.date === caseDte) return true; }).number;
+
+                    if (cases !== undefined && cases > 0) {
+                        numCases = numCases + Number.parseInt(cases);
+                    }
+                    start.add(1, 'days');
                 }
-                start.add(1, 'days');
-            }
-            features.push({
-                "type": "Feature", "properties": { "id": id + start.valueOf(), "cases": numCases },
-                "geometry": { "type": "Point", "coordinates": [Number.parseFloat(elem['Long']), Number.parseFloat(elem['Lat'])] }
+                features.push({
+                    "type": "Feature", "properties": { "id": id + start.valueOf(), "cases": numCases },
+                    "geometry": { "type": "Point", "coordinates": [Number.parseFloat(elem['Long']), Number.parseFloat(elem['Lat'])] }
+                });
             });
+
         });
 
         res.json({

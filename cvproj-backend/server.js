@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
 const casesRouter = require('./routes/cases');
+let dbHandler = require('./src/db-handler');
 
 require('dotenv').config();
 
@@ -13,18 +13,7 @@ var corsOptions = {
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 
-const uri = process.env.ATLAS_URI;
-mongoose.connect(uri, {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useFindAndModify: false
-});
-
-const connection = mongoose.connection;
-
-connection.once('open', () => {
-  console.log("MongoDB database connection established!");
-})
+dbHandler.connect();
 
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -41,3 +30,8 @@ app.listen(port, () => {
   console.log('server running on port: ' + port);
 
 });
+
+module.exports = app;
+
+//for testing
+module.exports.dbHandler = dbHandler;
