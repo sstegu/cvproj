@@ -1,28 +1,62 @@
 import React, { Component, useState } from 'react';
-import MapGL, { Source, Layer } from 'react-map-gl';
+import MapGL, { Source, Layer, FullscreenControl } from 'react-map-gl';
 import { clusterLayer, clusterCountLayer, unclusteredPointLayer } from './layer';
+import axios from 'axios';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
-function Map() {
-    const TOKEN = 'pk.eyJ1Ijoic3N0ZWd1IiwiYSI6ImNrODdzNjNqYjAxNHgzZ28zOXFjbThzYmUifQ.IzbYorcpup3glrse186GdA';
+const TOKEN = 'pk.eyJ1Ijoic3N0ZWd1IiwiYSI6ImNrODdzNjNqYjAxNHgzZ28zOXFjbThzYmUifQ.IzbYorcpup3glrse186GdA';
+const dataUrl = 'http://localhost:5000/cases/mb/Canada';
 
-    const [viewport, setViewport] = useState({
-        width: '100%',
-        height: 500,
-        latitude: 37.7577,
-        longitude: -122.4376,
-        zoom: 3
-    });
+export default class Map extends Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state =
+        {
+            viewport: {
+                width: '100%',
+                height: 500,
+                latitude: 37.7577,
+                longitude: -122.4376,
+                zoom: 3
+            },
+            data: {}
+
+        };
 
 
-    return (
-        <MapGL
-            {...viewport}
-            onViewportChange={setViewport}
+    }
+
+    componentDidMount() {
+
+        axios.get(dataUrl)
+            .then((result) => {
+                this.setState({
+                    data: result.data,
+                    mounted: true
+                });
+            })
+            .catch((err) => { console.log(err); });
+
+
+    }
+
+
+    render() {
+        const { mounted } = this.state
+        return (<MapGL
+            {...this.state.viewport}
+            onViewportChange={(viewport) => {
+                if (mounted) { this.setState({ viewport }) }
+            }}
             mapboxApiAccessToken={TOKEN}
             mapStyle="mapbox://styles/mapbox/dark-v9"
+
         >
+            <FullscreenControl position='top-right' />
             <Source id="cData" type="geojson"
-                data="http://localhost:5000/cases/mb/Canada/4-8-2020" cluster={true}
+                data={this.state.data} cluster={true}
                 clusterMaxZoom={14}
                 clusterRadius={50}
             >
@@ -31,7 +65,6 @@ function Map() {
                 <Layer {...unclusteredPointLayer} />
             </Source>
         </MapGL>
-    );
+        );
+    }
 }
-
-export default Map;

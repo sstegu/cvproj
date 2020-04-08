@@ -18,3 +18,6 @@ module.exports.connect = async () => {
 
 }
 
+module.exports.closeDatabase = async () => {
+    await mongoose.connection.close();
+}

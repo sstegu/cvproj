@@ -65,15 +65,10 @@ describe('get mongo data', () => {
 
     it('it should get mb data', async () => {
 
-        const url1 = "/cases/mb/Canada/" + moment().startOf('day').format('M-D-YYYY');
-        const url2 = "/cases/mb/Canada/" + moment().subtract(1, 'days').startOf('day').format('M-D-YYYY');
+        const url1 = "/cases/mb/Canada";
         console.log(url1);
-        console.log(url2);
         const res1 = await request(app).get(url1);
-        const res2 = await request(app).get(url2);
         expect(res1.statusCode).toEqual(200);
-        expect(res2.statusCode).toEqual(200);
         console.log(res1.body);
-        console.log(res2.body);
-    }, 120000);
+    });
 });

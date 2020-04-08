@@ -1,6 +1,6 @@
 const csvToJson = require('csvtojson');
-const moment = require('moment');
 const router = require('express').Router();
+const GeoJSON = require('geojson');
 let cases = require('../models/case.model');
 
 
@@ -20,37 +20,12 @@ router.route('/:country').get(async (req, res) => {
     }
 });
 
-router.route('/mb/:country/:dateFilter').get(async (req, res) => {
-    try {
-        let features = [];
-        let dateFilter = moment(req.params.dateFilter).startOf('day');
-
-        await cases.find({ country: req.params.country }, (err, result) => {
-            console.log(result);
-            result.forEach((elem, index) => {
-
-                let id = elem['country'] + elem['region'];
-
-                let caseByDate = elem.cases.find((elem) => moment(elem.date, 'M/D/YY').isSame(dateFilter));
-
-                if (caseByDate !== undefined) {
-                    features.push({
-                        "type": "Feature", "properties": { "id": id, "cases": caseByDate.number },
-                        "geometry": { "type": "Point", "coordinates": [elem['lng'], elem['lat']] }
-                    });
-                }
-            });
-
-        });
-
-        return res.json({
-            "type": "FeatureCollection",
-            "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
-            "features": features
-        });
-    } catch (err) {
-        return res.status(400).json('error: ' + err);
-    }
+router.route('/mb/:country').get(async (req, res) => {
+    await cases.find({ country: req.params.country })
+        .then((result) => {
+            return res.json(GeoJSON.parse(result, { Point: ['lat', 'lng'] }));
+        })
+        .catch((err) => { res.status(400).json('error: ' + err); });
 });
 
 async function timeSeriesToJSON(country) {

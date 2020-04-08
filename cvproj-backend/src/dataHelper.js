@@ -2,7 +2,6 @@ const csvtojson = require('csvtojson');
 const moment = require('moment');
 let Case = require('../models/case.model');
 
-
 require('dotenv').config();
 
 const FILE_PATH = process.env.FILE_PATH;
@@ -30,7 +29,7 @@ module.exports.insertCases = async function (path) {
                         lng,
                         cases
                     });
-
+                    console.log('insert new case: ' + newCase);
                     newCase.save().then(() => {
                         resolve("inserted");
                     });
