@@ -22,7 +22,7 @@ function Map() {
             mapStyle="mapbox://styles/mapbox/dark-v9"
         >
             <Source id="cData" type="geojson"
-                data="http://localhost:5000/cases/mb/Canada" cluster={true}
+                data="http://localhost:5000/cases/mb/Canada/4-8-2020" cluster={true}
                 clusterMaxZoom={14}
                 clusterRadius={50}
             >

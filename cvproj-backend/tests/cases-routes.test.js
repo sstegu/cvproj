@@ -1,6 +1,6 @@
 const request = require('supertest');
 const testDbHandler = require('./db-handler');
-const app = require('../server')(testDbHandler);
+const app = require('../src/my-server').startServer(testDbHandler);
 const dataHelper = require('../src/dataHelper');
 const moment = require('moment');
 let Case = require('../models/case.model');
