@@ -20,38 +20,30 @@ router.route('/:country').get(async (req, res) => {
     }
 });
 
-router.route('/mb/:country').get(async (req, res) => {
+router.route('/mb/:country/:dateFilter').get(async (req, res) => {
     try {
         let features = [];
+        let dateFilter = moment(req.params.dateFilter).startOf('day');
 
         await cases.find({ country: req.params.country }, (err, result) => {
             console.log(result);
             result.forEach((elem, index) => {
-                let start = moment().subtract(1, 'days');
-                let end = moment();
-                let numCases = 0;
+
                 let id = elem['country'] + elem['region'];
-                let casesByDte = elem['cases'];
 
-                while (start.isSameOrBefore(end)) {
-                    let caseDte = start.format('M/D/YY');
+                let caseByDate = elem.cases.find((elem) => moment(elem.date, 'M/D/YY').isSame(dateFilter));
 
-                    let cases = casesByDte.find((val) => { if (val.date === caseDte) return true; }).number;
-
-                    if (cases !== undefined && cases > 0) {
-                        numCases = numCases + Number.parseInt(cases);
-                    }
-                    start.add(1, 'days');
+                if (caseByDate !== undefined) {
+                    features.push({
+                        "type": "Feature", "properties": { "id": id, "cases": caseByDate.number },
+                        "geometry": { "type": "Point", "coordinates": [elem['lng'], elem['lat']] }
+                    });
                 }
-                features.push({
-                    "type": "Feature", "properties": { "id": id + start.valueOf(), "cases": numCases },
-                    "geometry": { "type": "Point", "coordinates": [Number.parseFloat(elem['Long']), Number.parseFloat(elem['Lat'])] }
-                });
             });
 
         });
 
-        res.json({
+        return res.json({
             "type": "FeatureCollection",
             "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
             "features": features
