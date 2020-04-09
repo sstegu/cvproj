@@ -39,7 +39,6 @@ describe('data helper tests', () => {
             numCases = count;
         });
 
-        console.log("num inserts " + numCases);
         expect(numCases > 0).toBe(true);
 
         let canCases = null;

@@ -7,11 +7,11 @@ require('dotenv').config();
 const FILE_PATH = process.env.FILE_PATH;
 
 module.exports.insertCases = async function (path) {
-    console.debug("default file path" + FILE_PATH);
+
     let fPath = path || FILE_PATH;
-    console.debug("insert file path: " + fPath);
+
     await csvtojson()
-        .fromFile(FILE_PATH)
+        .fromFile(fPath)
         .subscribe((json) => {
             //console.log(json);
             return new Promise((resolve, reject) => {
@@ -29,7 +29,7 @@ module.exports.insertCases = async function (path) {
                         lng,
                         cases
                     });
-                    console.log('insert new case: ' + newCase);
+
                     newCase.save().then(() => {
                         resolve("inserted");
                     });

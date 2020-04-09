@@ -60,12 +60,12 @@ describe('get mongo data', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.length > 0).toBe(true);
         expect(res.body[0].cases.length === 2).toBe(true);
-        console.log(res.body[0].cases);
+        console.log(res.body[0]);
     });
 
     it('it should get mb data', async () => {
 
-        const url1 = "/cases/mb/Canada";
+        const url1 = "/cases/mb/Canada/4-7-2020";
         console.log(url1);
         const res1 = await request(app).get(url1);
         expect(res1.statusCode).toEqual(200);
