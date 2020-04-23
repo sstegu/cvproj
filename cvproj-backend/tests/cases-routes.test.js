@@ -31,8 +31,42 @@ beforeAll(async () => {
     await newCase.save();
 
     newCase = new Case({
+        'country': 'Austria',
+        'region': 'Graz',
+        'lat': 55,
+        'lng': 67,
+        cases: [
+            {
+                'date': moment().subtract(1, 'days').startOf('day').format('M/D/YY'),
+                'number': 30
+            }, {
+                'date': moment().startOf('day').format('M/D/YY'),
+                'number': 50
+            }]
+    });
+
+    await newCase.save();
+
+    newCase = new Case({
         'country': 'Canada',
         'region': 'Quebec',
+        'lat': 55,
+        'lng': 67,
+        cases: [
+            {
+                'date': moment().subtract(1, 'days').startOf('day').format('M/D/YY'),
+                'number': 30
+            }, {
+                'date': moment().startOf('day').format('M/D/YY'),
+                'number': 50
+            }]
+    });
+
+    await newCase.save();
+
+    newCase = new Case({
+        'country': 'US',
+        'region': 'New York',
         'lat': 55,
         'lng': 67,
         cases: [
@@ -60,15 +94,24 @@ describe('get mongo data', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.length > 0).toBe(true);
         expect(res.body[0].cases.length === 2).toBe(true);
-        console.log(res.body[0]);
+        //console.log(res.body[0]);
     });
 
     it('it should get mb data', async () => {
 
         const url1 = "/cases/mb/Canada/4-7-2020";
-        console.log(url1);
+        //console.log(url1);
         const res1 = await request(app).get(url1);
         expect(res1.statusCode).toEqual(200);
-        console.log(res1.body);
+        //console.log(res1.body);
+    });
+
+    it('get countries', async () => {
+        const url = "/cases/countries";
+        const res = await request(app).get(url);
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.length).toEqual(3);
+        expect(res.body).toEqual(['Austria', 'Canada', 'US']);
+
     });
 });

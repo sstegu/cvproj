@@ -8,6 +8,15 @@ require('dotenv').config();
 
 const FILE_PATH = process.env.FILE_PATH;
 
+router.route('/countries').get(async (req, res) => {
+    try {
+        const result = await cases.distinct('country').sort();
+        return res.json(result);
+    } catch (err) {
+        return res.status(400).json('error', err);
+    };
+});
+
 router.route('/:country').get(async (req, res) => {
     try {
         const result = await cases.find({ country: req.params.country }, (err, result) => {
@@ -26,7 +35,7 @@ router.route('/mb/:country/:dateFilter').get(async (req, res) => {
         let dateFilter = moment(req.params.dateFilter).startOf('day');
 
         await cases.find({ country: req.params.country }, (err, result) => {
-            console.log(result);
+            //console.log(result);
             result.forEach((elem, index) => {
 
                 let id = elem['country'] + elem['region'];
@@ -41,13 +50,15 @@ router.route('/mb/:country/:dateFilter').get(async (req, res) => {
                 }
             });
 
+            return res.json({
+                "type": "FeatureCollection",
+                "crs": { "type": "name", "properties": { "name": "my features" } },
+                "features": features
+            });
+
         });
 
-        return res.json({
-            "type": "FeatureCollection",
-            "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
-            "features": features
-        });
+
     } catch (err) {
         return res.status(400).json('error: ' + err);
     }
